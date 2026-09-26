@@ -1,0 +1,39 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (Go ${{ matrix.go }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ["1.27", stable]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Check go mod tidy
+        run: go mod tidy -diff
+
+      - name: Build
+        run: go build ./...
+
+      # Includes the relay-only and built-binary end-to-end tests, which use
+      # the public n0 relays.
+      - name: Test
+        run: go test -race -shuffle=on -count=1 ./...

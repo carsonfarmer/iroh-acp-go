@@ -1,0 +1,37 @@
+version: "2"
+
+linters:
+  # standard (govet, staticcheck, errcheck, unused, ineffassign), plus:
+  enable:
+    - bidichk # dangerous bidirectional Unicode
+    - copyloopvar # loop variable copies made redundant by Go 1.22
+    - errorlint # errors.Is/As and %w
+    - gocritic # common style and correctness slips
+    - godot # comments end with a period
+    - gosec # security scanner
+    - intrange # range over integers
+    - misspell # English misspellings
+    - modernize # older patterns newer Go replaces
+    - nilerr # returning nil with a non-nil err in scope
+    - nolintlint # //nolint must name a linter and say why
+    - revive # naming and doc conventions
+    - thelper # test helpers call t.Helper
+    - usestdlibvars # stdlib constants over literals
+    - usetesting # t.TempDir, t.Context and friends in tests
+  exclusions:
+    presets:
+      - std-error-handling # unchecked Close, Flush and print errors
+      - common-false-positives # gosec on file paths from variables, such as -key
+  settings:
+    gosec:
+      excludes:
+        - G104 # unhandled errors: errcheck's job, with the preset above
+        - G204 # subprocess from variables: acp-server exists to run the agent command it is given
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
