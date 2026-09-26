@@ -105,7 +105,7 @@ calls crosses iroh:
 On the agent's machine:
 
 ```bash
-acp-server -allow <client-id> npx -y @zed-industries/claude-code-acp
+acp-server -allow <client-id> npx -y @agentclientprotocol/claude-agent-acp
 ```
 
 On the editor's machine, add this to Zed's `settings.json`, then pick "Remote Claude"

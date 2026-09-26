@@ -1,7 +1,7 @@
 // Command acp-server exposes a stdio ACP agent to the iroh peers it allows. It
 // prints an endpoint ticket, then runs one agent process per connection:
 //
-//	acp-server -allow <client-id> npx -y @zed-industries/claude-code-acp
+//	acp-server -allow <client-id> npx -y @agentclientprotocol/claude-agent-acp
 //
 // Its key is saved in -key, so tickets keep working across restarts.
 package main
