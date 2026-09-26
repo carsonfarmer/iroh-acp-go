@@ -79,7 +79,8 @@ func AllowIDs(ids ...key.EndpointID) func(key.EndpointID) bool {
 // done.
 func Serve(ctx context.Context, ep *iroh.Endpoint, allow func(key.EndpointID) bool, handle func(net.Conn)) error {
 	l := iroh.NewStreamListener()
-	// Unlike ep.ListenStreams, a Router keeps accepting after a rejection.
+	// Unlike ep.ListenStreams, a Router keeps accepting after a rejection:
+	// https://github.com/tmc/go-iroh/issues/25
 	_, err := iroh.NewRouter(ep, map[string]iroh.ProtocolHandler{ALPN: iroh.ProtocolHandlerFunc(func(rctx context.Context, c *iroh.Conn) error {
 		if !allow(c.RemoteID()) {
 			_ = c.CloseWithError(1, "not allowed")
@@ -119,7 +120,9 @@ func ConnectAgent(ctx context.Context, ep *iroh.Endpoint, ticket string, newClie
 	}
 	agent := acp1.ConnectAgent(ctx, acp.NewStdioTransport(c, c), newClient)
 	go func() {
-		<-agent.Done() // acp-go closes the transport only after its read unblocks
+		// acp-go closes the transport only after its read unblocks:
+		// https://github.com/ironpark/acp-go/issues/11
+		<-agent.Done()
 		_ = c.Close()
 	}()
 	return agent, nil
