@@ -240,9 +240,13 @@ Dependabot keeps Go modules and actions up to date.
 - By default, peers that can't connect directly use n0's public relays. For production,
   pass your own relay configuration to `Bind`.
 - acp-go's `RemoteAgent.Close` can hang when it runs over a stdio transport on a
-  socket. `ConnectAgent` works around this by closing the stream itself.
+  socket ([ironpark/acp-go#11](https://github.com/ironpark/acp-go/issues/11), fixed by
+  [#12](https://github.com/ironpark/acp-go/pull/12)). `ConnectAgent` works around this
+  by closing the stream itself.
 - In go-iroh, `Endpoint.ListenStreams` stops accepting after a handshake hook rejects
-  a peer. `Serve` uses an `iroh.Router` instead, which keeps going.
+  a peer ([tmc/go-iroh#25](https://github.com/tmc/go-iroh/issues/25), fixed by
+  [#26](https://github.com/tmc/go-iroh/pull/26)). `Serve` uses an `iroh.Router`
+  instead, which keeps going.
 
 ## Acknowledgements
 
