@@ -12,12 +12,12 @@ the middle.
 ```mermaid
 flowchart LR
   subgraph yours["Your machine"]
-    editor("ACP client<br/><small>e.g. Zed</small>") ---|stdio| client("<code>acp-client</code>")
+    editor("ACP client<br/>e.g. Zed") ---|stdio| client("acp-client")
   end
   subgraph theirs["Agent's machine"]
-    server("<code>acp-server</code>") ---|stdio| agent("agent<br/><small>e.g. Claude Code</small>")
+    server("acp-server") ---|stdio| agent("agent<br/>e.g. Claude Code")
   end
-  client ===|"<b>iroh</b><br/><small>QUIC, end-to-end encrypted<br/>direct or relayed</small>"| server
+  client ===|"<b>iroh</b><br/>QUIC, end-to-end encrypted<br/>direct or relayed"| server
 
   classDef ours stroke:#7c9cff,stroke-width:2px
   class client,server ours
