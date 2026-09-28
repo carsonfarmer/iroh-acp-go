@@ -118,12 +118,5 @@ func ConnectAgent(ctx context.Context, ep *iroh.Endpoint, ticket string, newClie
 	if err != nil {
 		return nil, err
 	}
-	agent := acp1.ConnectAgent(ctx, acp.NewStdioTransport(c, c), newClient)
-	go func() {
-		// acp-go closes the transport only after its read unblocks:
-		// https://github.com/ironpark/acp-go/issues/11
-		<-agent.Done()
-		_ = c.Close()
-	}()
-	return agent, nil
+	return acp1.ConnectAgent(ctx, acp.NewStdioTransport(c, c), newClient), nil
 }
