@@ -9,8 +9,21 @@ machine and use it from an editor on another, peer to peer over
 [iroh](https://github.com/tmc/go-iroh). There are no open ports, no VPN and no server in
 the middle.
 
-```
-editor ──stdio── acp-client ══ iroh (QUIC, direct or relayed) ══ acp-server ──stdio── agent
+```mermaid
+flowchart LR
+  subgraph yours["Your machine"]
+    editor("ACP client<br/><small>e.g. Zed</small>") ---|stdio| client("<code>acp-client</code>")
+  end
+  subgraph theirs["Agent's machine"]
+    server("<code>acp-server</code>") ---|stdio| agent("agent<br/><small>e.g. Claude Code</small>")
+  end
+  client ===|"<b>iroh</b><br/><small>QUIC, end-to-end encrypted<br/>direct or relayed</small>"| server
+
+  classDef ours stroke:#7c9cff,stroke-width:2px
+  class client,server ours
+  linkStyle 2 stroke:#7c9cff
+  style yours fill:none,stroke:#8b93a3,stroke-dasharray:5 5
+  style theirs fill:none,stroke:#8b93a3,stroke-dasharray:5 5
 ```
 
 It is two small binaries and a Go library, built almost entirely from
