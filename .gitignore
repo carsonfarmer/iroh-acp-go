@@ -1,3 +1,4 @@
 /bin/
 *.key
 coverage.out
+.DS_Store
