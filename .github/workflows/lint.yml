@@ -19,6 +19,8 @@ jobs:
         with:
           go-version-file: go.mod
 
+      # ./... leaves out dot directories, so the spec suite is named.
       - uses: golangci/golangci-lint-action@v9
         with:
           version: v2.14.0
+          args: ./... ./.regenerate

@@ -3,6 +3,7 @@
 [![Test](https://github.com/carsonfarmer/iroh-acp-go/actions/workflows/test.yml/badge.svg)](https://github.com/carsonfarmer/iroh-acp-go/actions/workflows/test.yml)
 [![Lint](https://github.com/carsonfarmer/iroh-acp-go/actions/workflows/lint.yml/badge.svg)](https://github.com/carsonfarmer/iroh-acp-go/actions/workflows/lint.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/carsonfarmer/iroh-acp-go.svg)](https://pkg.go.dev/github.com/carsonfarmer/iroh-acp-go)
+[![Regenerative software](https://img.shields.io/badge/regenerative-software-4f6fd8)](https://github.com/carsonfarmer/iroh-acp-go/blob/main/.regenerate/README.md)
 
 Run an [Agent Client Protocol](https://agentclientprotocol.com) (ACP) agent on one
 machine and use it from an editor on another, peer to peer over
@@ -29,6 +30,8 @@ flowchart LR
 It is two small binaries and a Go library, built almost entirely from
 [go-iroh](https://github.com/tmc/go-iroh) and [acp-go](https://github.com/ironpark/acp-go).
 The library is under 100 lines of code, and each binary is under 50.
+The repository also keeps what an agent needs to write that code again: a
+[spec, a decision log, a prompt and the tests that judge the result](.regenerate/README.md).
 
 ## Why
 
@@ -227,15 +230,18 @@ away.
 ## Development
 
 ```bash
-go test -race ./...     # everything, including relay-only and built-binary tests
+go test -race ./...     # all the tests, including relay-only and built-binary tests
 go test -short ./...    # loopback only, no network
 golangci-lint run       # the configuration is in .golangci.yml
 ```
 
-Tests never touch your real key files.
+The tests use only the exported API and the built binaries. They never touch your
+real key files.
 
 - `TestServeAgentConnectAgent` runs the library over direct loopback and over the n0
   relays only. It checks two concurrent agents and a rejected stranger.
+- `TestLoadKey` checks that a key file is created with mode `0600` and loads the same
+  key again.
 - `TestBinaries` builds `acp-server`, `acp-client` and acp-go's echo agent, then drives
   `acp-client` the way an editor does. It covers:
   - clean shutdown,
@@ -243,8 +249,29 @@ Tests never touch your real key files.
   - a client killed with SIGKILL, whose agent must exit within about 10s,
   - a server restart that keeps the old ticket working.
 
-CI runs these tests, golangci-lint and govulncheck on every push and pull request.
-Dependabot keeps Go modules and actions up to date.
+CI runs these tests, the spec suite described below, golangci-lint and govulncheck on
+every push and pull request. Dependabot keeps Go modules and actions up to date.
+Coding agents should read [`AGENTS.md`](AGENTS.md) first.
+
+## Regenerating this project
+
+The code and its tests are one implementation, and a rebuild may replace them. In
+[regenerative software](https://aicoding.leaflet.pub/3majnyfydzs2y) the durable
+assets are the interfaces, the behavior and the tests that check them, and an agent
+writes the implementation from them. This repository keeps those assets in
+[`.regenerate/`](.regenerate), apart from the project:
+
+- [`SPEC.md`](.regenerate/SPEC.md) says what the program must do, down to the API and
+  the log lines.
+- [`DECISIONS.md`](.regenerate/DECISIONS.md) says why the design is the way it is.
+- [`PROMPT.md`](.regenerate/PROMPT.md) is the prompt for the agent that rebuilds it.
+- The spec suite next to them checks an implementation against `SPEC.md`: its
+  exported API, its flags, its behavior on the wire and in the binaries, and its
+  size. CI runs it on this code too, so the code and the spec stay in step. Run it
+  with `go test ./.regenerate`, because `./...` leaves out dot directories.
+
+To try a rebuild, follow [`.regenerate/README.md`](.regenerate/README.md). Each run,
+passing or not, goes in the ledger in [`PROVENANCE.md`](.regenerate/PROVENANCE.md).
 
 ## Caveats and known issues
 

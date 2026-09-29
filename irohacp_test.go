@@ -57,7 +57,8 @@ func bind(t *testing.T, opts ...iroh.Option) *iroh.Endpoint {
 // prompt runs one turn on agent and returns the text it streamed back.
 func prompt(t *testing.T, agent *acp1.RemoteAgent, text string) string {
 	t.Helper()
-	ctx := t.Context()
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
+	defer cancel()
 	if _, err := agent.Initialize(ctx, &acp1.InitializeRequest{}); err != nil {
 		t.Fatal(err)
 	}

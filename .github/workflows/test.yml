@@ -37,3 +37,8 @@ jobs:
       # the public n0 relays.
       - name: Test
         run: go test -race -shuffle=on -count=1 ./...
+
+      # The go command leaves dot directories out of ./..., so the spec suite
+      # needs its own step. It checks the code against .regenerate/SPEC.md.
+      - name: Test against the spec
+        run: go test -race -shuffle=on -count=1 ./.regenerate
