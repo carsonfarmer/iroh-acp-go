@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	github.com/ironpark/acp-go v0.0.0-20260928055350-4a565bbdc0b7
-	github.com/tmc/go-iroh v0.2.1
+	github.com/tmc/go-iroh v0.2.2
 )
 
 require (

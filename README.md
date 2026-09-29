@@ -252,10 +252,6 @@ Dependabot keeps Go modules and actions up to date.
   times out.
 - By default, peers that can't connect directly use n0's public relays. For production,
   pass your own relay configuration to `Bind`.
-- In go-iroh, `Endpoint.ListenStreams` stops accepting after a handshake hook rejects
-  a peer ([tmc/go-iroh#25](https://github.com/tmc/go-iroh/issues/25), fixed by
-  [#26](https://github.com/tmc/go-iroh/pull/26)). `Serve` uses an `iroh.Router`
-  instead, which keeps going.
 
 ## Acknowledgements
 
