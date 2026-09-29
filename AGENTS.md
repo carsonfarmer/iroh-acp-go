@@ -36,41 +36,19 @@ version from `.github/workflows/lint.yml`.
 
 For a new feature or any change in behavior, use the
 [grill-me](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me)
-skill to interview the user before you write code. grill-me is the command a person
-types. It runs the
-[grilling](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling)
-skill, which an agent can start by itself. Both are in
-[mattpocock/skills](https://github.com/mattpocock/skills), whose README shows how to
-install them. Keep going until every open question has an answer from the user.
-
-A change in behavior updates the code, its tests and `README.md` together.
+skill to interview the user before you write code.
 
 ## Writing Go
 
 Use the Go skills from
-[samber/cc-skills-golang](https://github.com/samber/cc-skills-golang). Install all of
-them, because they refer to each other. The ones this code needs most:
+[samber/cc-skills-golang](https://github.com/samber/cc-skills-golang).
 
-- [golang-code-style](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-code-style),
-  [golang-naming](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-naming)
-  and [golang-documentation](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-documentation)
-- [golang-error-handling](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-error-handling),
-  [golang-context](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-context)
-  and [golang-concurrency](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-concurrency)
-- [golang-testing](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-testing),
-  [golang-safety](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-safety)
-  and [golang-modernize](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-modernize)
-- [golang-cli](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-cli)
-  for the two binaries, and
-  [golang-lint](https://github.com/samber/cc-skills-golang/tree/main/skills/golang-lint)
-  for golangci-lint
-
-Rules for this repository:
+## Rules
 
 - **Stay inside the size budget.** The library stays under 100 lines of code and each
   binary under 50, counting lines that are neither blank nor comments in all of a
-  package's files. CI fails when one goes over. When code grows, look in go-iroh or acp-go for something
-  that already does the job.
+  package's files. CI fails when one goes over. When code grows, look in go-iroh or
+  acp-go for something that already does the job.
 - **Read the dependency source before you call it.**
   `go list -m -f '{{.Dir}}' github.com/tmc/go-iroh github.com/ironpark/acp-go` prints
   where it is. Do not guess an API from memory.
@@ -80,6 +58,8 @@ Rules for this repository:
 - **Keep versions in one place.** Go, module and tool versions live in `go.mod`,
   `go.sum` and the workflow files. Do not repeat them in docs, comments or tests.
 - **Ask before adding a direct dependency.**
+- **Keep the docs in step.** A change in behavior updates the code, its tests and
+  `README.md` together.
 
 ## Tests
 
