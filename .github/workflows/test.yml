@@ -34,11 +34,8 @@ jobs:
         run: go build ./...
 
       # Includes the relay-only and built-binary end-to-end tests, which use
-      # the public n0 relays.
+      # the public n0 relays. The go command leaves dot directories out of
+      # ./..., so the spec suite, which checks the code against
+      # .regenerate/SPEC.md, is named. One command runs both packages at once.
       - name: Test
-        run: go test -race -shuffle=on -count=1 ./...
-
-      # The go command leaves dot directories out of ./..., so the spec suite
-      # needs its own step. It checks the code against .regenerate/SPEC.md.
-      - name: Test against the spec
-        run: go test -race -shuffle=on -count=1 ./.regenerate
+        run: go test -race -shuffle=on -count=1 ./... ./.regenerate
