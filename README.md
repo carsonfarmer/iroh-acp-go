@@ -67,7 +67,7 @@ connection, so the editor still just launches a local command: `acp-client`.
     agent sees EOF and exits. The server then closes the stream, and `acp-client` sees
     EOF and exits.
   - If the editor kills `acp-client` outright, as Zed does, the connection times out
-    after 10s without word from the client, and the agent's stdin closes.
+    10 to 15s later, and the agent's stdin closes.
   - iroh sends keepalives every 5s, so a quiet but live session stays up.
 
 ## Install
@@ -246,7 +246,7 @@ real key files.
   `acp-client` the way an editor does. It covers:
   - clean shutdown,
   - a client that isn't allowed,
-  - a client killed with SIGKILL, whose agent must exit within about 10s,
+  - a client killed with SIGKILL, whose agent must exit within 15s,
   - a server restart that keeps the old ticket working.
 
 CI runs these tests, the spec suite described below, golangci-lint and govulncheck on
@@ -275,7 +275,7 @@ passing or not, goes in the ledger in [`PROVENANCE.md`](.regenerate/PROVENANCE.m
 
 ## Caveats and known issues
 
-- A client that is killed leaves its agent running for up to 10s, until the connection
+- A client that is killed leaves its agent running for 10 to 15s, until the connection
   times out.
 - By default, peers that can't connect directly use n0's public relays. For production,
   pass your own relay configuration to `Bind`.
