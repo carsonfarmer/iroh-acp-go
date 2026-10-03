@@ -74,7 +74,10 @@ agent. Recorded (README, "Lifecycle").
 D14. **Bound the wait for the agent's I/O.** The stream is the process's stdin and
 stdout, so a copy can outlive the process and hold up its exit. Go's `os/exec` has
 `WaitDelay` for this, and the Rust server gives the copy the same second. Inferred
-from the `os/exec` documentation for `WaitDelay`.
+from the `os/exec` documentation for `WaitDelay`. `WaitDelay` does not bound a read
+of the stream as the process's `Stdin`, so the Go server has a limit that the Rust
+server does not (SPEC section 12). A blind rebuild found it, and the `os/exec`
+documentation for `Stdin` confirms it.
 
 D15. **Do not wait long for a home relay.** The server prints its ticket anyway, and
 that ticket carries direct addresses only. Recorded (code comment in `acp-server`).

@@ -358,6 +358,10 @@ Go:
 - The child is an `exec.Cmd` for `flag.Arg(0)` and the rest of `flag.Args()`. Its
   `Stdin` and `Stdout` are the stream, its `Stderr` is `os.Stderr`, and its
   `WaitDelay` is 1 second. The log line is `log.Print("agent exited: ", cmd.Run())`.
+- `cmd.Run()` also waits for a read of the stream that is in progress, and
+  `WaitDelay` does not cut that read short. So when the child exits while the
+  client's side of the stream is open, the end of step 6 waits until the client
+  sends more data or closes its side.
 
 Rust:
 
@@ -481,6 +485,7 @@ from this file.
 - What happens to open connections when serving stops, when `ctx` is done in Go or
   the `serve` future is dropped in Rust.
 - Serving more than one stream per connection. The tests use one.
+- An agent that exits while the client's side of the stream is still open.
 - The default key path when `$XDG_CONFIG_HOME` is set.
 
 ## 12. Known limits
@@ -497,6 +502,9 @@ Keep these. They are documented in the README and are not bugs to fix in a rebui
   any `allow` function, so a caller can supply one.
 - The server has no graceful shutdown. It runs until it is killed.
 - Key file modes are Unix modes. The Rust implementation builds only on Unix.
+- When an agent exits while the client's side of the stream is still open, the Go
+  server ends the stream only once the client sends more data or closes its side.
+  The Rust server ends it within a second.
 
 ## 13. Non-goals
 

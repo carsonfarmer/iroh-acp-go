@@ -279,6 +279,8 @@ passing or not, goes in the ledger in [`PROVENANCE.md`](.regenerate/PROVENANCE.m
   times out.
 - By default, peers that can't connect directly use n0's public relays. For production,
   pass your own relay configuration to `Bind`.
+- If the agent exits on its own while the editor keeps the session open, the editor
+  sees the stream end only when it next writes to the agent or closes the session.
 
 ## Acknowledgements
 
