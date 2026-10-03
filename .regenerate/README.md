@@ -24,6 +24,10 @@ below are this project's own.
 | Pins | [`../go.mod`](../go.mod), [`../go.sum`](../go.sum) | Toolchain and dependency versions. |
 | Provenance | [`PROVENANCE.md`](PROVENANCE.md) | What made the reference, and a ledger of every rebuild. |
 
+`SPEC.md` and `DECISIONS.md` are the same files in iroh-acp-rs, a Rust implementation
+of the same spec. A change to either goes into both repositories, and both spec
+suites run on it before it is committed.
+
 The replaceable part is the project itself: `irohacp.go` and the two `main.go` files,
 178 lines of code in all, and `irohacp_test.go`, their tests.
 

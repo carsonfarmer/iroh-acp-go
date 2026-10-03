@@ -8,7 +8,9 @@ against tests you cannot see.
 
 The workspace holds:
 
-- `SPEC.md`. The behavior the result must have. It is your source of truth.
+- `SPEC.md`. The behavior the result must have. It is your source of truth. It
+  covers a Go and a Rust implementation. You are building the Go one, so the parts
+  marked Go apply and the parts marked Rust do not.
 - `DECISIONS.md`. Why the design is the way it is. Use it to choose between options
   when `SPEC.md` leaves room.
 - `go.mod` and `go.sum`. They pin the toolchain and the dependencies. Do not change
@@ -70,9 +72,9 @@ decides whether it is kept:
   `SPEC.md` is enough to build the project. A rebuild that passes tests it was
   shown proves less.
 - The suite compares your exported declarations with the Go block in section 5 of
-  the spec, and your `-h` output with the flag tables in sections 6 and 7. It talks
-  to your library through go-iroh itself, and runs your binaries by name with the
-  `-key=` and `-allow=` flags. That is why the spec fixes those exactly.
+  the spec, and your `-h` output with the Go usage texts in sections 6 and 7. It
+  talks to your library through go-iroh itself, and runs your binaries by name with
+  the `-key=` and `-allow=` flags. That is why the spec fixes those exactly.
 - Your code and your tests are built against the `go.mod` you were given.
 - If the suite fails, the spec gets fixed. The tests do not get loosened.
 

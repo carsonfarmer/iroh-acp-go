@@ -344,15 +344,6 @@ func TestBinaries(t *testing.T) {
 	}
 	alice, bob, strangerID := "-allow="+clientID("alice.key"), "-allow="+clientID("bob.key"), clientID("stranger.key")
 
-	for _, bad := range [][]string{{keyFlag("usage.key"), "sh"}, {keyFlag("usage.key"), alice}} {
-		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
-		out, err := exec.CommandContext(ctx, filepath.Join(bin, "acp-server"), bad...).CombinedOutput()
-		cancel()
-		if err == nil || !strings.Contains(string(out), "usage: acp-server") {
-			t.Errorf("acp-server %v: %v, %q; want the usage error", bad, err, out)
-		}
-	}
-
 	// The agent writes to stderr before it starts, which the server must pass
 	// on. The server must also run the command with its arguments as given.
 	args := []string{keyFlag("server.key"), alice, bob, "sh", "-c", `echo hello from the agent >&2; exec "$0"`, filepath.Join(bin, "echo")}

@@ -2,11 +2,14 @@ package regenerate
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"flag"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"go/types"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path"
@@ -16,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/tmc/go-iroh/key"
 
@@ -174,7 +178,7 @@ func TestAPI(t *testing.T) {
 }
 
 // TestFlags checks each command's -h output against the flag table in its
-// section of SPEC.md: the names, the defaults and the usage text. It prints
+// section of SPEC.md: the names, the defaults and the Go usage text. It prints
 // the table's flags with the flag package and expects the same lines.
 func TestFlags(t *testing.T) {
 	bin := build(t, "github.com/carsonfarmer/iroh-acp-go/cmd/...")
@@ -182,7 +186,7 @@ func TestFlags(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	row := regexp.MustCompile("(?m)^\\| `-([a-z]+)` \\| (.+?) \\| .*Usage text: ``(.+?)``\\. \\|$")
+	row := regexp.MustCompile("(?m)^\\| `-([a-z]+)` \\| (.+?) \\| .+? \\| ``(.+?)`` \\|$")
 	for number, cmd := range map[string]string{"6": "acp-server", "7": "acp-client"} {
 		flags := flag.NewFlagSet(cmd, flag.ContinueOnError)
 		for _, m := range row.FindAllStringSubmatch(specSection(t, number), -1) {
@@ -190,8 +194,8 @@ func TestFlags(t *testing.T) {
 			switch {
 			case def == m[2]: // not code, as in "none, required"
 				def = ""
-			case strings.HasPrefix(def, "<os.UserConfigDir()>/"):
-				def = filepath.Join(configDir, strings.TrimPrefix(def, "<os.UserConfigDir()>/"))
+			case strings.HasPrefix(def, "<config dir>/"):
+				def = filepath.Join(configDir, strings.TrimPrefix(def, "<config dir>/"))
 			}
 			flags.String(m[1], def, m[3])
 		}
@@ -209,6 +213,60 @@ func TestFlags(t *testing.T) {
 		}
 		if got != want.String() {
 			t.Errorf("%s -h prints\n%s\nand SPEC.md section %s says\n%s", cmd, got, number, want.String())
+		}
+	}
+}
+
+// TestUsage runs the commands with -h, with bad flags and without the
+// arguments they need, and checks the exit statuses in SPEC.md sections 6, 7
+// and 9. Every run must write to stderr, and none may write to stdout or make
+// a key file.
+func TestUsage(t *testing.T) {
+	bin := build(t, "github.com/carsonfarmer/iroh-acp-go/cmd/...")
+	keyFile := filepath.Join(t.TempDir(), "usage.key")
+	sk, err := key.SecretKeyFromSlice(bytes.Repeat([]byte{1}, key.SeedSize))
+	if err != nil {
+		t.Fatal(err)
+	}
+	allow := "-allow=" + sk.Public().EndpointID().String()
+	for _, c := range []struct {
+		cmd    string
+		args   []string
+		status int
+	}{
+		{"acp-server", []string{"-h"}, 0},
+		{"acp-server", []string{"-nope", "x", allow, "sh"}, 2},
+		{"acp-server", []string{"-allow"}, 2},
+		{"acp-server", []string{"-allow=nope", "sh"}, 2},
+		{"acp-server", []string{"sh"}, 1},
+		{"acp-server", []string{allow}, 1},
+		{"acp-server", nil, 1},
+		{"acp-client", []string{"-h"}, 0},
+		{"acp-client", []string{"-nope"}, 2},
+		{"acp-client", []string{"-key"}, 2},
+	} {
+		// -key comes first, so no run can touch the real key file.
+		args := append([]string{"-key=" + keyFile}, c.args...)
+		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
+		cmd := exec.CommandContext(ctx, filepath.Join(bin, c.cmd), args...)
+		var stdout, stderr strings.Builder
+		cmd.Stdout, cmd.Stderr = &stdout, &stderr
+		err := cmd.Run()
+		cancel()
+		if cmd.ProcessState == nil {
+			t.Fatal(err)
+		}
+		if got := cmd.ProcessState.ExitCode(); got != c.status || stderr.Len() == 0 {
+			t.Errorf("%s %v: status %d, stderr %q; want status %d and a message", c.cmd, args, got, stderr.String(), c.status)
+		}
+		if c.status == 1 && !strings.Contains(stderr.String(), "usage: acp-server") {
+			t.Errorf("%s %v: stderr %q, want the usage line", c.cmd, args, stderr.String())
+		}
+		if stdout.Len() > 0 {
+			t.Errorf("%s %v wrote %q to stdout", c.cmd, args, stdout.String())
+		}
+		if _, err := os.Stat(keyFile); !errors.Is(err, fs.ErrNotExist) {
+			t.Fatalf("%s %v made a key file: %v", c.cmd, args, err)
 		}
 	}
 }
