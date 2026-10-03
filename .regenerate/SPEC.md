@@ -435,7 +435,7 @@ Rust:
 | Event | What must happen |
 | --- | --- |
 | The editor closes the agent's stdin | `acp-client` closes its send side. The remote agent sees EOF and exits. The server ends the stream. `acp-client` sees EOF and exits with status 0 within 2.5 seconds, half of the 5 seconds acp-go gives an agent to exit before it kills it. |
-| The editor kills `acp-client` with SIGKILL | Nothing is sent. The server drops the connection 10 to 15 seconds later (section 4, item 6). The remote agent's stdin closes and it exits. The tests allow up to 15 seconds. |
+| The editor kills `acp-client` with SIGKILL | Nothing is sent. The server drops the connection 10 to 15 seconds later (section 4, item 6). The remote agent's stdin closes and it exits. The tests allow up to 20 seconds, so an agent still has time to exit after a 15-second drop. |
 | A peer that is not allowed connects | It gets no agent, its `acp-client` exits with status 1 and `not allowed` on stderr, the server logs the `rejected <id>` line, and the server keeps serving. |
 | Two allowed clients connect at once | Each gets its own agent process. |
 | The server restarts with the same key file | It has the same endpoint ID. A client that dials the ticket from before the restart connects. |

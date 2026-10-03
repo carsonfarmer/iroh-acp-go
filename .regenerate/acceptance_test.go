@@ -402,7 +402,7 @@ func TestBinaries(t *testing.T) {
 		}
 		start := time.Now()
 		_ = client.Process.Kill()
-		waitFor(t, lines, "agent exited", 15*time.Second)
+		waitFor(t, lines, "agent exited", 20*time.Second)
 		t.Logf("remote agent exited %v after its client was killed", time.Since(start).Round(time.Second))
 		_ = agent.Close()
 	})

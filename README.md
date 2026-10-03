@@ -246,7 +246,7 @@ real key files.
   `acp-client` the way an editor does. It covers:
   - clean shutdown,
   - a client that isn't allowed,
-  - a client killed with SIGKILL, whose agent must exit within 15s,
+  - a client killed with SIGKILL, whose agent must exit within 20s,
   - a server restart that keeps the old ticket working.
 
 CI runs these tests, the spec suite described below, golangci-lint and govulncheck on
