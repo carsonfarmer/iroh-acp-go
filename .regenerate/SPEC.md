@@ -67,7 +67,8 @@ truth, and this file does not restate them.
 4. A server accepts a connection only from a peer whose endpoint ID its allow
    function accepts. The ID is authenticated by the QUIC TLS handshake. For any other
    peer, the server closes the connection with application error code `1` and the
-   reason `not allowed`. It does not start an agent.
+   reason `not allowed`. It does not start an agent, even for a stream that arrived
+   before the allow function returned.
 5. A rejected peer MUST NOT stop the server from accepting other peers.
 6. Connections use a maximum idle timeout of 10 seconds. iroh's default is 30. go-iroh
    sends keepalives every 5 seconds, so a quiet, live connection stays open. QUIC

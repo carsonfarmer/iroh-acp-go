@@ -42,7 +42,9 @@ D7. **Tell a rejected client why, and log its ID.** The client sees why it was t
 away and the operator sees who knocked. Inferred from the README's mention of both.
 
 D8. **A rejected peer gets no agent and does not stop the server.** A stranger must
-not be able to take the server down. Recorded (commits f9ec635 and 0fbc125).
+not be able to take the server down. This covers a stream the stranger sent before
+`allow` returned. go-iroh never yields one from a closed connection, but some QUIC
+libraries do, and a Rust port served it. Recorded (commits f9ec635 and 0fbc125).
 
 ## Keys and tickets
 

@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/netip"
 	"os"
 	"os/exec"
@@ -16,6 +17,7 @@ import (
 	"github.com/ironpark/acp-go/acp1"
 	"github.com/tmc/go-iroh/endpointticket"
 	"github.com/tmc/go-iroh/iroh"
+	"github.com/tmc/go-iroh/key"
 	"github.com/tmc/go-iroh/relay"
 
 	irohacp "github.com/carsonfarmer/iroh-acp-go"
@@ -127,6 +129,37 @@ func TestServeAgentConnectAgent(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestServeRejectsQueuedStream checks that a peer allow rejects gets no stream,
+// even one that arrived before allow returned.
+func TestServeRejectsQueuedStream(t *testing.T) {
+	opts := []iroh.Option{iroh.WithBindAddr(netip.MustParseAddrPort("127.0.0.1:0")), iroh.WithRelayMode(relay.ModeDisabled())}
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
+	defer cancel()
+	server := bind(t, opts...)
+	handled := make(chan struct{}, 1)
+	slowReject := func(key.EndpointID) bool {
+		time.Sleep(300 * time.Millisecond) // the stranger's stream arrives meanwhile
+		return false
+	}
+	go func() { _ = irohacp.Serve(ctx, server, slowReject, func(net.Conn) { handled <- struct{}{} }) }()
+	c, err := irohacp.Dial(ctx, bind(t, opts...), endpointticket.Encode(server.Addr()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	if _, err := c.Write([]byte("{}\n")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := c.Read(make([]byte, 1)); err == nil {
+		t.Error("read from a rejected stream")
+	}
+	select {
+	case <-handled:
+		t.Error("stranger's stream was served")
+	case <-time.After(time.Second):
 	}
 }
 
