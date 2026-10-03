@@ -122,3 +122,10 @@ statuses. Rust's standard library has no flag parser and the spec allows no flag
 crate, so the Rust binaries parse Go's flag syntax by hand. Help text, error wording
 and log prefixes stay free, since matching Go's exactly would cost more lines than
 the budget has. Recorded (the shared `SPEC.md`, sections 6 and 9).
+
+D23. **Mixed pairs are checked by hand, not in CI.** A Go client must work with a Rust
+server, and the other way round. Each repository's CI tests only its own code,
+because a test that builds both would tie the two together. So the mixed pairs are
+run by hand when the spec changes, and each failure becomes a line in the spec. The
+first run found the Rust client waiting 9 seconds for a go-iroh server to answer its
+close. Recorded (the shared `SPEC.md`, section 7).

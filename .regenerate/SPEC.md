@@ -400,8 +400,9 @@ Behavior, in order:
 5. Copy stdin to the stream. When stdin reaches EOF, close the send side of the
    stream.
 6. Copy the stream to stdout until the stream ends.
-7. Close the endpoint. If the copy in step 6 ended without error, exit with status 0.
-   If it failed, the error goes to stderr and the status is 1.
+7. Close the endpoint, and wait at most 1 second for the server to answer the close.
+   If the copy in step 6 ended without error, exit with status 0. If it failed, the
+   error goes to stderr and the status is 1.
 
 When the server rejects the client, the error on stderr contains `not allowed` and the
 status is 1. Whether the error comes out of the dial or out of the copy in step 6
@@ -411,13 +412,15 @@ Go:
 
 - Flags use the standard `flag` package with the usage text in the table.
 - Each error is logged with `log.Fatal`. Step 5 calls `CloseWrite`, and step 7 calls
-  `ep.Shutdown`.
+  `ep.Shutdown`, which does not wait for an answer.
 
 Rust:
 
 - `-h`, an unknown flag and a flag with no value print
   `usage: acp-client [-key file] [ticket]` and a newline.
-- Step 5 calls `SendStream::finish`, and step 7 calls `Endpoint::close`.
+- Step 5 calls `SendStream::finish`, and step 7 calls `Endpoint::close` under a
+  1-second `timeout`. A go-iroh server does not answer a close, which QUIC allows, and
+  without the timeout `close` waits about 9 seconds for it.
 - When the copy fails, the client prints the error's source, or the error itself if
   it has no source. The `ReadError` itself only says `connection lost`.
 - The client exits with `std::process::exit`, because a read of stdin may still be
